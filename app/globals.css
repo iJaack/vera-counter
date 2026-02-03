@@ -1,0 +1,206 @@
+:root {
+  --bg: #06090f;
+  --panel: #101622;
+  --panel-2: #131b2a;
+  --text: #e9f0ff;
+  --muted: #9ab0d1;
+  --border: #22314b;
+  --accent: #65d6ff;
+  --accent-2: #7bf0ba;
+  --shadow: rgba(0, 0, 0, 0.28);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  color: var(--text);
+  background:
+    radial-gradient(1100px 650px at 5% -15%, rgba(101, 214, 255, 0.18), transparent 60%),
+    radial-gradient(850px 550px at 100% 0%, rgba(123, 240, 186, 0.14), transparent 62%),
+    var(--bg);
+  font-family: "Avenir Next", "Trebuchet MS", "Segoe UI", sans-serif;
+  line-height: 1.5;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.page {
+  width: min(1120px, 92vw);
+  margin: 0 auto;
+  padding: 3rem 0 4rem;
+  display: grid;
+  gap: 1.1rem;
+}
+
+.hero {
+  background: linear-gradient(135deg, rgba(16, 22, 34, 0.95), rgba(11, 15, 24, 0.93));
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 1.6rem;
+  box-shadow: 0 20px 38px var(--shadow);
+}
+
+.kicker {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent-2);
+  font-size: 0.76rem;
+}
+
+h1 {
+  margin: 0.2rem 0 0;
+  font-size: clamp(1.7rem, 4vw, 2.5rem);
+}
+
+.heroText {
+  margin: 0.7rem 0 0;
+  max-width: 74ch;
+  color: var(--muted);
+}
+
+.linkRow {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.cardGrid {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.card {
+  background: linear-gradient(160deg, var(--panel), var(--panel-2));
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1rem;
+  box-shadow: 0 12px 24px var(--shadow);
+}
+
+.cardLabel {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.cardValue {
+  margin: 0.35rem 0 0;
+  font-size: clamp(1.15rem, 2.7vw, 1.8rem);
+  font-weight: 600;
+}
+
+.panel {
+  background: rgba(16, 22, 34, 0.86);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.15rem;
+  box-shadow: 0 14px 28px var(--shadow);
+}
+
+h2 {
+  margin: 0 0 0.7rem;
+  font-size: 1.14rem;
+}
+
+h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--border);
+  padding: 0.65rem 0.55rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+tr:last-child td {
+  border-bottom: 0;
+}
+
+.commandCard,
+.smallCommandCard {
+  background: rgba(13, 19, 31, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.8rem;
+  margin-bottom: 0.7rem;
+}
+
+.commandGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.7rem;
+}
+
+.commandTitle {
+  margin: 0 0 0.35rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: rgba(3, 7, 12, 0.8);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem;
+  color: #c9f4ff;
+  font-size: 0.8rem;
+}
+
+.meta {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+@media (max-width: 860px) {
+  .cardGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .page {
+    width: min(1100px, 94vw);
+    padding-top: 1.5rem;
+  }
+}
