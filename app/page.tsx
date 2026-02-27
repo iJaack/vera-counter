@@ -7,12 +7,77 @@ import {
   getTableCommands,
   getVerifierAllianceStats,
 } from "@/lib/verifier-alliance";
+import {
+  getVerifiedContractsDailyData,
+  type VerifiedContractsDailyPoint,
+} from "@/lib/verified-contracts-daily";
 
 export const revalidate = 3600;
+
+const averageFormatter = new Intl.NumberFormat("en-US", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+function formatDay(day: string | null): string {
+  if (!day) {
+    return "-";
+  }
+
+  const date = new Date(`${day}T00:00:00Z`);
+  if (Number.isNaN(date.getTime())) {
+    return day;
+  }
+
+  return date.toLocaleDateString("en-US", {
+    dateStyle: "medium",
+    timeZone: "UTC",
+  });
+}
+
+function buildSparklinePoints(
+  series: VerifiedContractsDailyPoint[],
+  width: number,
+  height: number,
+): string {
+  if (!series.length) {
+    return "";
+  }
+
+  const counts = series.map((entry) => entry.count);
+  const min = Math.min(...counts);
+  const max = Math.max(...counts);
+  const range = max - min || 1;
+  const step = series.length > 1 ? (width - 8) / (series.length - 1) : 0;
+
+  return series
+    .map((entry, index) => {
+      const x = 4 + index * step;
+      const y = height - 4 - ((entry.count - min) / range) * (height - 8);
+      return `${x.toFixed(2)},${y.toFixed(2)}`;
+    })
+    .join(" ");
+}
 
 export default async function Page() {
   try {
     const stats = await getVerifierAllianceStats();
+    const verifiedDaily = await getVerifiedContractsDailyData();
+    const sparklineWidth = 560;
+    const sparklineHeight = 120;
+    const sparklineSeries = verifiedDaily.series.slice(-60);
+    const sparklinePoints = buildSparklinePoints(
+      sparklineSeries,
+      sparklineWidth,
+      sparklineHeight,
+    );
+    const tableRows = [...verifiedDaily.series.slice(-30)].reverse();
+    const sparklineMin = sparklineSeries.length
+      ? Math.min(...sparklineSeries.map((point) => point.count))
+      : null;
+    const sparklineMax = sparklineSeries.length
+      ? Math.max(...sparklineSeries.map((point) => point.count))
+      : null;
 
     return (
       <main className="page">
@@ -27,6 +92,7 @@ export default async function Page() {
               Raw XML listing
             </a>
             <Link href="/api/stats">JSON API route</Link>
+            <Link href="/api/verified-contracts-daily">Verified daily API</Link>
           </div>
         </section>
 
@@ -43,6 +109,91 @@ export default async function Page() {
             <p className="cardLabel">Latest update</p>
             <p className="cardValue">{formatDate(stats.totals.latestUpdate)}</p>
           </article>
+        </section>
+
+        <section className="panel">
+          <h2>Verified Contracts Daily</h2>
+          <p className="panelText">
+            Daily counts from <code>data/verified_contracts_daily_counts.csv</code>.
+          </p>
+          <div className="dailySummaryGrid">
+            <article className="card compactCard">
+              <p className="cardLabel">Total verified contracts</p>
+              <p className="cardValue">{formatNumber(verifiedDaily.summary.total)}</p>
+            </article>
+            <article className="card compactCard">
+              <p className="cardLabel">Latest day</p>
+              <p className="cardValue">{formatDay(verifiedDaily.summary.latestDay)}</p>
+            </article>
+            <article className="card compactCard">
+              <p className="cardLabel">Latest count</p>
+              <p className="cardValue">
+                {verifiedDaily.summary.latestCount === null
+                  ? "-"
+                  : formatNumber(verifiedDaily.summary.latestCount)}
+              </p>
+            </article>
+            <article className="card compactCard">
+              <p className="cardLabel">7-day average</p>
+              <p className="cardValue">{averageFormatter.format(verifiedDaily.summary.average7d)}</p>
+            </article>
+            <article className="card compactCard">
+              <p className="cardLabel">30-day average</p>
+              <p className="cardValue">{averageFormatter.format(verifiedDaily.summary.average30d)}</p>
+            </article>
+          </div>
+
+          <div className="dailyLayout">
+            <article className="dailyTrend">
+              <p className="commandTitle">Trend (last 60 days)</p>
+              {sparklinePoints ? (
+                <>
+                  <svg
+                    className="sparkline"
+                    viewBox={`0 0 ${sparklineWidth} ${sparklineHeight}`}
+                    role="img"
+                    aria-label="Verified contracts daily count trend"
+                  >
+                    <polyline points={sparklinePoints} />
+                  </svg>
+                  <p className="sparkMeta">
+                    Min {sparklineMin === null ? "-" : formatNumber(sparklineMin)} | Max{" "}
+                    {sparklineMax === null ? "-" : formatNumber(sparklineMax)}
+                  </p>
+                </>
+              ) : (
+                <p className="panelText">No trend data available.</p>
+              )}
+            </article>
+
+            <article className="dailyTable">
+              <p className="commandTitle">Latest 30 days</p>
+              <div className="tableWrap">
+                <table className="compactTable">
+                  <thead>
+                    <tr>
+                      <th>Day</th>
+                      <th>Count</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {!tableRows.length ? (
+                      <tr>
+                        <td colSpan={2}>No rows available.</td>
+                      </tr>
+                    ) : (
+                      tableRows.map((entry) => (
+                        <tr key={entry.day}>
+                          <td>{formatDay(entry.day)}</td>
+                          <td>{formatNumber(entry.count)}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </article>
+          </div>
         </section>
 
         <section className="panel">
@@ -123,6 +274,7 @@ export default async function Page() {
               Raw XML listing
             </a>
             <Link href="/api/stats">JSON API route</Link>
+            <Link href="/api/verified-contracts-daily">Verified daily API</Link>
           </div>
         </section>
         <section className="panel">
